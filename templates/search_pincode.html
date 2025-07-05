@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Parking Lots in {{ pincode }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .lot {
+      background-color: white;
+      padding: 20px;
+      margin-bottom: 24px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+    .spot-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .spot {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .available {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .occupied {
+      background-color: #f44336;
+      color: white;
+    }
+    .btn-reserve {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+    .btn-reserve:disabled {
+      background-color: #9E9E9E;
+      cursor: not-allowed;
+    }
+    .back-link, .home-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      margin-right: 12px;
+      padding: 10px 15px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .back-link:hover, .home-link:hover {
+      background: #0056b3;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #1d3557;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 700px) {
+      main { padding: 0; }
+      .lot { padding: 12px; }
+      .spot { width: 32px; height: 32px; font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div style="text-align:center;">
+      <a href="{{ url_for('view_parking') }}" class="back-link">← Back to All Parking Lots</a>
+      <a href="{{ url_for('user_dashboard') }}" class="home-link">🏠 Home</a>
+    </div>
+    <h1>Parking Lots in Pincode: {{ pincode }}</h1>
+    {% if lots %}
+      {% for lot in lots %}
+        <div class="lot">
+          <h2>{{ lot.prime_location }}</h2>
+          <p><strong>Address:</strong> {{ lot.address }}, {{ lot.pin_code }}</p>
+          <p><strong>Price:</strong> ₹{{ lot.price }}/hr</p>
+          <p><strong>Total Spots:</strong> {{ lot.spots|length }}</p>
+          <p><strong>Available Spots:</strong> {{ lot.available_count }}</p>
+          <div class="spot-container">
+            {% for spot in lot.spots %}
+            <div class="spot {{ 'available' if spot.status == 'A' else 'occupied' }}"
+                 title="Spot {{ spot.spot_number }} - {{ 'Available' if spot.status == 'A' else 'Occupied' }}">
+              {{ spot.spot_number }}
+            </div>
+            {% endfor %}
+          </div>
+          {% if lot.available_count > 0 %}
+            <form method="POST" action="{{ url_for('reserve_spot', lot_id=lot.id) }}">
+              <button type="submit" class="btn-reserve">Reserve a Spot in This Lot</button>
+            </form>
+          {% else %}
+            <button class="btn-reserve" disabled>No Spots Available</button>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <p style="text-align:center; color:#e63946;">No parking lots found for pincode {{ pincode }}.</p>
+    {% endif %}
+  </main>
+</body>
+</html>

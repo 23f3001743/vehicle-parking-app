@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Admin Profile</title>
+    <style>
+        body {
+            background: #f6f7fb;
+            font-family: Arial, sans-serif;
+        }
+        .profile-box {
+            max-width: 350px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #0001;
+        }
+        h2 {
+            text-align: center;
+            color: #222a35;
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+            color: #222a35;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 7px;
+            margin-bottom: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        button {
+            background: #276ef1;
+            color: #fff;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #174ea6;
+        }
+        .cancel-link {
+            margin-left: 10px;
+            color: #276ef1;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .cancel-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="profile-box">
+    <h2>Edit Admin Profile</h2>
+    <form method="POST">
+        <label>Full Name</label>
+        <input type="text" name="full_name" value="{{ user.full_name }}" required>
+        <label>Email</label>
+        <input type="email" name="email" value="{{ user.email }}" required>
+        <label>New Password (leave blank to keep current)</label>
+        <input type="password" name="password">
+        <button type="submit">Update Profile</button>
+        <a href="{{ url_for('admin_dashboard') }}" class="cancel-link">Cancel</a>
+    </form>
+</div>
+</body>
+</html>

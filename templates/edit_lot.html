@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Parking Lot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 24px;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 350px;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 14px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .back-link {
+            display: block;
+            width: fit-content;
+            margin: 28px auto 0 auto;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+        .back-link:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 600px) {
+            form { width: 98vw; }
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit Parking Lot</h2>
+    <form method="POST">
+        <label for="prime_location">Prime Location</label>
+        <input type="text" name="prime_location" value="{{ lot.prime_location }}" required>
+
+        <label for="address">Address</label>
+        <input type="text" name="address" value="{{ lot.address }}" required>
+
+        <label for="price">Price per Hour</label>
+        <input type="number" step="0.01" name="price" value="{{ lot.price }}" required>
+
+        <label for="pin_code">Pin Code</label>
+        <input type="text" name="pin_code" value="{{ lot.pin_code }}" required>
+
+        <label for="total_spots">Total Spots</label>
+        <input type="number" name="total_spots" value="{{ lot.total_spots }}" min="1" required>
+
+        <button type="submit">Update Lot</button>
+    </form>
+    <a href="{{ url_for('manage_parking') }}" class="back-link">⬅ Back to Manage Parking</a>
+</body>
+</html>

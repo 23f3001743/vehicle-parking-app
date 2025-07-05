@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background: #0f233f;
+            color: #fff;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            justify-content: space-between;
+        }
+        .navbar .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .navbar .brand {
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .navbar a:hover {
+            background: #d9b40b;
+        }
+        .vehicle-badge {
+            background: #17a2b8;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            margin-right: 10px;
+        }
+        .edit-link {
+            background-color: #680786;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .logout-link {
+            background: #c90303;
+            color: #fff;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 24px auto 20px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 24px 24px 32px 24px;
+        }
+        .stat-row {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+        .stat-card {
+            flex: 1;
+            background: #f5f7fa;
+            border-radius: 8px;
+            text-align: center;
+            padding: 18px 0;
+            font-size: 1.1rem;
+        }
+        .stat-card.total { background: #276ef1; color: #fff; }
+        .stat-card.active { background: #ffc107; color: #222; }
+        .stat-card.spent { background: #28a745; color: #fff; }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #fff;
+        }
+        .history-table th, .history-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        .history-table th {
+            background: #222a35;
+            color: #fff;
+        }
+        .badge-success {
+            background: #28a745;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 8px;
+        }
+        .badge-warning {
+            background: #ffc107;
+            color: #222;
+            padding: 3px 9px;
+            border-radius: 10px;
+        }
+        @media (max-width: 700px) {
+            .stat-row { flex-direction: column; }
+            .container { padding: 16px 4px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="brand">Parking App</span>
+            <a href="{{ url_for('user_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('view_parking') }}">View Parking</a>
+            <a href="{{ url_for('my_reservations') }}">My Reservations</a>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <span class="vehicle-badge">Vehicle: {{ user.vehicle_number or "N/A" }}</span>
+            <a href="{{ url_for('user_edit_profile') }}" class="edit-link">Edit Profile</a>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>Welcome, {{ user.full_name }}</h2>
+        <div class="stat-row">
+            <div class="stat-card total">
+                <div>Total Reservations</div>
+                <div style="font-size:1.4rem;">{{ reservations|length }}</div>
+            </div>
+            <div class="stat-card active">
+                <div>Active Reservations</div>
+                <div style="font-size:1.4rem;">{{ active_reservations|length }}</div>
+            </div>
+            <div class="stat-card spent">
+                <div>Total Spent</div>
+                <div style="font-size:1.4rem;">₹{{ total_spent|round(2) }}</div>
+            </div>
+        </div>
+        <div style="max-width:340px; margin: 0 auto 32px;">
+            <canvas id="userChart" height="120"></canvas>
+        </div>
+        <h5>Your Parking History</h5>
+        {% if reservations %}
+        <div style="overflow-x:auto;">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Lot Name</th>
+                        <th>Spot Id</th>
+                        <th>Entry Time</th>
+                        <th>Exit Time</th>
+                        <th>Duration</th>
+                        <th>Total Cost</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reservations %}
+                    <tr>
+                        <td>{{ r.lot.prime_location }}</td>
+                        <td>{{ r.spot.spot_number }}</td>
+                        <td>{{ r.parking_timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if r.leaving_timestamp %}
+                            {{ r.leaving_timestamp.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}--{% endif %}
+                        </td>
+                        <td>
+                            {% if r.leaving_timestamp %}
+                            {{ (r.leaving_timestamp - r.parking_timestamp).seconds//3600 }}h
+                            {{ ((r.leaving_timestamp - r.parking_timestamp).seconds//60)%60 }}m
+                            {% else %}Ongoing{% endif %}
+                        </td>
+                        <td>
+                            {% if r.total_cost %}
+                            ₹{{ '%.2f'|format(r.total_cost) }}
+                            {% else %}--{% endif %}
+                        </td>
+                        <td>
+                            {% if r.leaving_timestamp %}
+                            <span class="badge-success">Completed</span>
+                            {% else %}
+                            <span class="badge-warning">Active</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="margin: 20px 0; color: #555;">No reservations yet.</div>
+        {% endif %}
+    </div>
+    <script>
+        // User Chart
+        const userCtx = document.getElementById('userChart').getContext('2d');
+        new Chart(userCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Active', 'Completed'],
+                datasets: [{
+                    data: [
+                        {{ active_reservations|length }},
+                        {{ reservations|length - active_reservations|length }}
+                    ],
+                    backgroundColor: ['#ffc107', '#198754']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

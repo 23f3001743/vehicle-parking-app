@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parking Summary</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f6f7fb; margin: 0; }
+        .container { max-width: 1000px; margin: 32px auto; background: #fff; border-radius: 30px; box-shadow: 0 2px 8px #0001; padding: 32px 24px; }
+        h2, h3 { text-align: center; color: #222a35; }
+        .chart-row { display: flex; gap: 40px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+        .chart-container { width: 420px; height: 400px; margin: 24px auto; background: #f9f9f9; border-radius: 10px; box-shadow: 0 1px 4px #0001; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .back-link {
+            display: inline-block;
+            margin: 20px 0 0 24px;
+            padding: 10px 10px;
+            background-color: #ca2d0a;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .navbar {
+    background: #0f2849ea;
+    color: #fff;
+    padding: 0 20px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    padding:10px 12px;
+    border-radius: 5px;
+    font-size: 1rem;
+    margin-right: 6px;
+}
+.navbar a:hover {
+    background: #34425a;
+}
+.edit-link {background-color: #ffc107d0;  }
+        .back-link:hover {
+            background-color: #ed3910;
+            
+        }
+        @media (max-width: 1000px) {
+            .chart-row { flex-direction: column; align-items: center; }
+            .chart-container { width: 95vw; max-width: 98vw; height: 320px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+    <div class="nav-left">
+        <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin_summary') }}"><strong>Summary</strong></a>
+        <a href="{{ url_for('manage_parking') }}">Manage Lots</a>
+        <a href="{{ url_for('view_users') }}">Users</a>
+        <a href="{{ url_for('view_all_reservations') }}">Reservations</a>
+    </div>
+    <div>
+        <a href="{{ url_for('admin_edit_profile') }}" class="edit-link">Edit Profile</a>
+        <a href="{{ url_for('logout') }}" class="back-link">Logout</a>
+    </div>
+</nav>
+    <div class="container">
+        <h2>Parking Summary</h2>
+        <div class="chart-row">
+            <div>
+                <h3>Overall Spot Status</h3>
+                <div class="chart-container">
+                    <canvas id="spotPie"></canvas>
+                </div>
+                <p style="text-align:center;">
+                    <b>Total Spots: {{ total_spots }}</b><br>
+                    <span style="color:#e74c3c;">Reserved: {{ reserved_spots }}</span> |
+                    <span style="color:#2ecc71;">Available: {{ available_spots }}</span>
+                </p>
+            </div>
+            <div>
+                <h3>Revenue Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="revenuePie"></canvas>
+                </div>
+                <p style="text-align:center;"><b>Total Revenue: ₹{{ total_revenue }}</b></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Pie Chart for Spot Status
+        new Chart(document.getElementById('spotPie'), {
+            type: 'pie',
+            data: {
+                labels: ['Reserved', 'Available'],
+                datasets: [{
+                    data: [{{ reserved_spots }}, {{ available_spots }}],
+                    backgroundColor: ['#e74c3c', '#2ecc71']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: true, text: 'Reserved vs Available Spots' }
+                }
+            }
+        });
+
+        // Pie Chart for Revenue Distribution
+        new Chart(document.getElementById('revenuePie'), {
+            type: 'pie',
+            data: {
+                labels: {{ lot_names|tojson }},
+                datasets: [{
+                    data: {{ lot_revenues|tojson }},
+                    backgroundColor: ['#276ef1', '#ffc107', '#28a745', '#e74c3c', '#17a2b8', '#8e44ad']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 16 } } },
+                    title: { display: true, text: 'Revenue by Lot' }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Registration</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f6f9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            display: flex;
+            width: 90vw;
+            max-width: 900px;
+            min-height: 70vh;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px #0001;
+            overflow: hidden;
+        }
+        .left-image {
+            flex: 1;
+            background: url("/static/images/parking_illustration.png") no-repeat center center;
+            background-size: cover;
+            min-height: 300px;
+        }
+        .register-box {
+            flex: 1;
+            background: #1d3557;
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        h2 {
+            margin-bottom: 24px;
+            color: #e63946;
+            font-size: 26px;
+        }
+        .message {
+            text-align: center;
+            margin-bottom: 18px;
+            color: #f77f00;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            max-width: 320px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            border: 1.5px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        input:focus {
+            border-color: #00b4d8;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            max-width: 320px;
+            padding: 12px;
+            border: none;
+            background-color: #e63946;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #d62828;
+        }
+        a {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #a8dadc;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .left-image { min-height: 180px; }
+            .register-box { padding: 24px 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="left-image"></div>
+    <div class="register-box">
+        <h2>Welcome to Your New Parking Space</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+        <form method="post" autocomplete="off">
+            <input type="text" name="full_name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="text" name="vehicle_number" placeholder="Vehicle Number" required>
+            <input type="text" name="phone" placeholder="Phone Number">
+            <input type="password" name="password" placeholder="Password" autocomplete="new-password" required>
+            <button type="submit">Register</button>
+        </form>
+        <a href="{{ url_for('login') }}">Have an account? Login here</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Reservations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            margin: 0;
+        }
+        .navbar {
+            background: #222a35;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .navbar .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .navbar a:hover {
+            background: #34425a;
+        }
+        .edit-link {background-color: #ffc107d0;  }
+
+        .logout-link { background: #e74c3c; color: #fff; }
+        h2 {
+            margin: 30px 0 16px 0;
+            text-align: center;
+            color: #222a35;
+        }
+        .total-revenue-box {
+            float: right;
+            margin: 24px 40px 0 0;
+            background: #28a745;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 1px 6px #0001;
+        }
+        table {
+            width: 95%;
+            margin: 0 auto 30px auto;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 1px 6px #0001;
+        }
+        th, td {
+            padding: 9px 10px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        th {
+            background: #222a35;
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background: #f2f4f8;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+    <div class="nav-left">
+        <a href="{{ url_for('admin_dashboard') }}">🔙Back to Dashboard</a>
+    </div>
+    <div class="nav-right">
+        <a href="{{ url_for('admin_edit_profile') }}" class="edit-link">Edit Profile</a>
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+</nav>
+
+    <div class="clearfix">
+        <h2 style="float:left;">All Reservations</h2>
+        <div class="total-revenue-box">
+            Total Revenue: ₹{{ '%.2f'|format(total_revenue) }}
+        </div>
+    </div>
+    <table>
+        <tr>
+            <th>User</th>
+            <th>Parking Lot</th>
+            <th>Vehicle Number</th>
+            <th>Spot ID</th>
+            <th>Start Time</th>
+            <th>Exit Time</th>
+            <th>Cost / Hour</th>
+            <th>Total Cost</th>
+        </tr>
+        {% for res in reservations %}
+        <tr>
+            <td>{{ res.user.full_name }}</td>
+            <td>{{ res.spot.lot.prime_location }}</td>
+            <td>{{ res.user.vehicle_number }}</td>
+            <td>{{ res.spot.id }}</td>
+            <td>{{ res.parking_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+                {% if res.leaving_timestamp %}
+                    {{ res.leaving_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                {% else %}
+                    Not exited yet
+                {% endif %}
+            </td>
+            <td>₹{{ res.cost_per_hour }}</td>
+            <td>
+                {% if res.total_cost %}
+                    ₹{{ res.total_cost }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

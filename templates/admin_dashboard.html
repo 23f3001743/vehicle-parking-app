@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f7fb;
+            margin: 0;
+        }
+        .navbar {
+            background: #0f2441;
+            color: #fff;
+            padding: 0 20px;
+            height: 47px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .navbar .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            margin-right: 6px;
+        }
+        .navbar a:hover {
+            background: #111e36;
+        }
+        .edit-link {background-color: #ffc107d0;  }
+
+        .logout-link { background: #e74c3c; color: #fff; }
+        .container {
+            max-width: 2000px;
+            margin: 24px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #0001;
+            padding: 24px 16px;
+        }
+        h1 {
+            text-align: center;
+            color: #222a35;
+        }
+        .lot-container {
+            border: 1.5px solid #ddd;
+            padding: 30px;
+            margin: 16px 0;
+            border-radius: 30px;
+            background: #f8fafc;
+        }
+        .lot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .lot-header h4 { margin: 0; color: #2c3e50; }
+        .price-badge {
+            background: #17a2b8;
+            color: #fff;
+            border-radius: 12px;
+            padding: 4px 12px;
+        }
+        .parking-grid {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .parking-spot {
+            width: 28px;
+            height: 28px;
+            margin: 2px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #fff;
+        }
+        button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    background: #3498db;
+    color: white;
+    cursor: pointer;
+}
+button:hover {
+    background: #2980b9;
+}
+
+        .parking-spot.available { background: #2ecc71; }
+        .parking-spot.occupied { background: #e74c3c; }
+        @media (max-width: 700px) {
+            .container { padding: 10px 2px; }
+            .lot-container { padding: 8px 3px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+      <form method="get" action="{{ url_for('search_spot') }}" style="display: inline;">
+    <input type="number" name="query" placeholder="Enter Spot or Lot ID" required>
+    <button type="submit">Search</button>
+</form>
+
+        <div class="nav-left">
+            <a href="{{ url_for('admin_dashboard') }}"><b>Dashboard</b></a>
+            <a href="{{ url_for('admin_summary') }}">Summary</a>
+            <a href="{{ url_for('manage_parking') }}">Manage Lots</a>
+            <a href="{{ url_for('view_users') }}">Users</a>
+            <a href="{{ url_for('view_all_reservations') }}">Reservations</a>
+            
+        </div>
+        <div>
+            <a href="{{ url_for('admin_edit_profile') }}" class="edit-link">Edit Profile</a>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Welcome, {{ admin.full_name or 'Admin' }}!</h1>
+        {% for lot in lots %}
+        <div class="lot-container">
+            <div class="lot-header">
+                <h4>{{ lot.prime_location }} (Lot #{{ lot.id }})</h4>
+                <span class="price-badge">₹{{ lot.price }}/hr</span>
+            </div>
+            <div>
+                <p><b>Location:</b> {{ lot.address }}, {{ lot.pin_code }}</p>
+                <p><b>Capacity:</b> {{ lot.spots|length }} spots ({{ lot.available_count }} available)</p>
+            </div>
+            <div>
+                <b>Parking Spots:</b>
+                <div class="parking-grid">
+                    {% for spot in lot.spots %}
+                    <div class="parking-spot {{ 'occupied' if spot.status == 'O' else 'available' }}"
+                         title="Spot {{ spot.spot_number }} - {{ 'Occupied' if spot.status == 'O' else 'Available' }}">
+                        {{ spot.spot_number }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
